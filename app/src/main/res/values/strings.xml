@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AudioBookMobileClient</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="list_fragment_label">Verfügbare Hörbücher</string>
+    <string name="details_fragment_label">Hörbuch-Details</string>
+</resources>
