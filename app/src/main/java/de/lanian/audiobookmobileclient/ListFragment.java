@@ -4,18 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import de.lanian.audiobookmobileclient.data.AudioBook;
 import de.lanian.audiobookmobileclient.data.AudioBookAdapter;
 import de.lanian.audiobookmobileclient.data.ListLoader;
@@ -40,10 +35,10 @@ public class ListFragment extends Fragment {
     }
 
     private ArrayList<AudioBook> loadBookList() {
+        String [] params = new String []{App.getApp().getServerIp()};
         ArrayList<AudioBook> list;
-
         ListLoader loader = new ListLoader();
-        loader.execute();
+        loader.execute(params);
         try {
             list = (ArrayList<AudioBook>)loader.get();
         } catch (ExecutionException e) {
@@ -66,4 +61,6 @@ public class ListFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+
 }

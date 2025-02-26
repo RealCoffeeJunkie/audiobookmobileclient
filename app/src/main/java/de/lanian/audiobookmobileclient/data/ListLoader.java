@@ -1,6 +1,8 @@
 package de.lanian.audiobookmobileclient.data;
 
 import android.os.AsyncTask;
+import android.widget.Toast;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
@@ -12,6 +14,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import de.lanian.audiobookmobileclient.App;
+
 public class ListLoader extends AsyncTask {
 
     @Override
@@ -19,7 +23,7 @@ public class ListLoader extends AsyncTask {
         ArrayList<AudioBook> books = new ArrayList<>();
 
         try {
-            URL url = new URL("http://192.168.178.38:8080/audiobook/list/");
+            URL url = new URL("http://" + objects[0] + ":8080/audiobook/list/");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {

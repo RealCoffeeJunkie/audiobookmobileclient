@@ -4,20 +4,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetailsFragment">
+    tools:context=".DetailsFragment"
+    android:background="@color/royalblue">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        android:background="#ff0000"
         android:layout_gravity="center_horizontal">
-        <ImageView
-            android:id="@+id/cover"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center_horizontal">
-        </ImageView>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/cover"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:scaleType="fitXY"
+                android:gravity="center_horizontal"
+                android:background="#ff0000">
+            </ImageView>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:textSize="24dp">
+            </TextView>
+            <TextView
+                android:id="@+id/series"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="22dp">
+            </TextView>
+            <TextView
+                android:id="@+id/author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp">
+            </TextView>
+            <TextView
+                android:id="@+id/year"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp">
+            </TextView>
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp">
+            </TextView>
+            <TextView
+                android:id="@+id/speaker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp">
+            </TextView>
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20dp">
+            </TextView>
+            <Button
+                android:id="@+id/download"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:text="Download"/>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
