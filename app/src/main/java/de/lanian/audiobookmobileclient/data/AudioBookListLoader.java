@@ -1,8 +1,5 @@
 package de.lanian.audiobookmobileclient.data;
 
-import android.os.AsyncTask;
-import android.widget.Toast;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
@@ -13,17 +10,22 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
-import de.lanian.audiobookmobileclient.App;
+import de.lanian.audiobookmobileclient.execptions.NoServerAccessException;
 
-public class ListLoader extends AsyncTask {
+public class AudioBookListLoader {
 
-    @Override
-    protected ArrayList<AudioBook> doInBackground(Object[] objects) {
+    private String server;
+
+    public AudioBookListLoader(String server) {
+        this.server = server;
+    }
+    public List<AudioBook> loadList() throws NoServerAccessException {
         ArrayList<AudioBook> books = new ArrayList<>();
 
         try {
-            URL url = new URL("http://" + objects[0] + ":8080/audiobook/list/");
+            URL url = new URL("http://" + server + ":8080/audiobook/list/");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -35,7 +37,7 @@ public class ListLoader extends AsyncTask {
             Type listType = new TypeToken<ArrayList<AudioBook>>(){}.getType();
             books = new Gson().fromJson(content, listType);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new NoServerAccessException("Daten konnten nicht geladen werden");
         }
 
         return books;

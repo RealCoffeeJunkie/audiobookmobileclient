@@ -1,7 +1,13 @@
 <resources>
-    <string name="app_name">AudioBookMobileClient</string>
-    <string name="action_settings">Server IP</string>
+    <string name="app_name">AudioBook MobileClient</string>
+    <string name="action_server">Server IP</string>
+    <string name="action_directory">Music Ordner</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="list_fragment_label">Verfügbare Hörbücher</string>
-    <string name="details_fragment_label">Hörbuch-Details</string>
+    <string name="list_fragment_label"></string>
+    <string name="details_fragment_label"></string>
+
+    <string name="title">Titel</string>
+    <string name="author">Author</string>
+    <string name="speaker">Sprecher</string>
+    <string name="series">Buchreihe</string>
 </resources>

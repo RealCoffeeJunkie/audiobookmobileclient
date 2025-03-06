@@ -1,28 +1,31 @@
-package de.lanian.audiobookmobileclient.data;
+package de.lanian.audiobookmobileclient.backup;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.ArrayList;
 import de.lanian.audiobookmobileclient.ListFragment;
 import de.lanian.audiobookmobileclient.R;
+import de.lanian.audiobookmobileclient.data.AudioBook;
 
 public class AudioBookAdapter extends RecyclerView.Adapter<AudioBookAdapter.ViewHolder> {
 
-    ArrayList<AudioBook> books;
-    ListFragment parent;
+    private ArrayList<AudioBook> books;
+    private ListFragment parent;
 
     public AudioBookAdapter(ArrayList<AudioBook> books, ListFragment fragment) {
         this.books = books;
@@ -32,7 +35,7 @@ public class AudioBookAdapter extends RecyclerView.Adapter<AudioBookAdapter.View
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.audiobook_row, viewGroup, false);
+                .inflate(R.layout.audiobooklist_contentrow, viewGroup, false);
         return new ViewHolder(view);
     }
 
@@ -44,10 +47,15 @@ public class AudioBookAdapter extends RecyclerView.Adapter<AudioBookAdapter.View
         Bitmap bm = BitmapFactory.decodeByteArray(cover, 0, cover.length);
         viewHolder.getImageViewCover().setImageBitmap(bm);
 
-        viewHolder.getTextViewTitle().setText(book.getTitle());
-        if(book.getSeries() != null && book.getSeries().length() > 0)
-            viewHolder.getTextViewSeries().setText("(" + book.getSeries() + ")");
-        viewHolder.getTextViewAuthor().setText(book.getAuthor());
+        viewHolder.getTextViewTitle().setText(book.Title);
+        if(book.Series != null && book.Series.length() > 0)
+            viewHolder.getTextViewSeries().setText("(" + book.Series + ")");
+        viewHolder.getTextViewAuthor().setText(book.Author);
+
+        if(isAudioBookAlreadyDownloaded(book))
+            viewHolder.getCheckBoxDownloaded().setChecked(true);
+        else
+            viewHolder.getCheckBoxDownloaded().setVisibility(View.INVISIBLE);
 
         viewHolder.getImageViewCover().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,6 +68,20 @@ public class AudioBookAdapter extends RecyclerView.Adapter<AudioBookAdapter.View
         });
     }
 
+    private boolean isAudioBookAlreadyDownloaded(AudioBook book) {
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath();
+        if(!path.endsWith("/"))
+            path += "/";
+        path += book.Author + "/" + book.Title;
+
+        File file = new File(path);
+
+        if(file.exists())
+            return true;
+
+        return false;
+    }
+
     @Override
     public int getItemCount() {
         return books.size();
@@ -70,6 +92,7 @@ public class AudioBookAdapter extends RecyclerView.Adapter<AudioBookAdapter.View
         private final TextView series;
         private final TextView author;
         private final ImageView cover;
+        private final CheckBox box;
 
         public ViewHolder(View view) {
             super(view);
@@ -77,6 +100,7 @@ public class AudioBookAdapter extends RecyclerView.Adapter<AudioBookAdapter.View
             series = (TextView) view.findViewById(R.id.series);
             cover = (ImageView) view.findViewById(R.id.cover);
             author = (TextView) view.findViewById(R.id.author);
+            box = (CheckBox) view.findViewById(R.id.isDownloaded);
         }
 
         public TextView getTextViewTitle() {
@@ -94,5 +118,7 @@ public class AudioBookAdapter extends RecyclerView.Adapter<AudioBookAdapter.View
         public TextView getTextViewAuthor() {
             return author;
         }
+
+        public CheckBox getCheckBoxDownloaded() { return box; }
     }
 }

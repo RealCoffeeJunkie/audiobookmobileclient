@@ -4,25 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/ListFragment">
-
     <fragment
         android:id="@+id/ListFragment"
         android:name="de.lanian.audiobookmobileclient.ListFragment"
         android:label="@string/list_fragment_label"
         tools:layout="@layout/fragment_list">
-
         <action
             android:id="@+id/action_ListFragment_to_DetailsFragment"
-            app:destination="@id/SecondFragment" />
+            app:destination="@id/DetailsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
+        android:id="@+id/DetailsFragment"
         android:name="de.lanian.audiobookmobileclient.DetailsFragment"
         android:label="@string/details_fragment_label"
         tools:layout="@layout/fragment_details">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            android:id="@+id/action_DetailsFragment_to_ListFragment"
             app:destination="@id/ListFragment" />
     </fragment>
 </navigation>

@@ -1,12 +1,8 @@
 package de.lanian.audiobookmobileclient.data;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.view.Window;
-import android.widget.ProgressBar;
+import android.os.Handler;
+import android.os.Message;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,42 +13,43 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import de.lanian.audiobookmobileclient.App;
 import de.lanian.audiobookmobileclient.execptions.DownloadFailedException;
 import de.lanian.audiobookmobileclient.execptions.NoServerAccessException;
 import de.lanian.audiobookmobileclient.execptions.UnpackingZipFailedException;
+import de.lanian.audiobookmobileclient.utils.Preferences;
 
-public class AudioBookDownloader extends AsyncTask {
+public class AudioBookDownloader {
 
     private AudioBook book;
+
+    private Handler handler;
+
     private Activity activity;
     private static final int BUFSIZE = 8096;
 
-    private ProgressDialog dialog;
-
-    public AudioBookDownloader(AudioBook book) {
+    public AudioBookDownloader(AudioBook book, Handler handler) {
         this.book = book;
+        this.handler = handler;
     }
 
-    @Override
-    protected Object doInBackground(Object[] objects) {
+    public Object downloadBook(String server) throws DownloadFailedException {
         String zipFile = null;
 
         try {
-            URL url = new URL("http://" + objects[0] + ":8080/audiobook/download/" + book.Uid);
+            URL url = new URL("http://" + server + ":8080/audiobook/download/" + book.Uid);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 throw new NoServerAccessException("Server couldnt be accessed.");
             }
 
-            String zipFileName = book.Author + " - " + book.getTitle() + ".zip";
+            String zipFileName = book.Author + " - " + book.Title + ".zip";
 
-            zipFile = saveZipFile(connection.getInputStream(), zipFileName);
-            unpackZip(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath(), zipFileName, book.Author, book.Title);
+            zipFile = saveZipFile(connection.getInputStream(), zipFileName, connection.getContentLength());
+            unpackZip(App.getApp().getAppPreference(Preferences.AUDIOBOOK_DIRECTORY), zipFileName, book.Author, book.Title);
         } catch (Exception e) {
-            return new DownloadFailedException(e.getMessage());
+            throw new DownloadFailedException(e.getMessage());
         } finally {
             if(zipFile != null) {
                 File file = new File(zipFile);
@@ -62,18 +59,29 @@ public class AudioBookDownloader extends AsyncTask {
         return null;
     }
 
-    private String saveZipFile(InputStream data, String fileName) throws DownloadFailedException {
-        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+    private String saveZipFile(InputStream data, String fileName, int contentLength) throws DownloadFailedException {
+        String musicDir = App.getApp().getAppPreference(Preferences.AUDIOBOOK_DIRECTORY);
+        File file = new File(musicDir);
         try {
             String path = file.getPath() + "/" + fileName;
-            int n, bytesBuffered = 0;
-            FileOutputStream fos = new FileOutputStream(path);
+            int n = 0, progress = 0;
+            double bytesBuffered = 0;
+
+            File zip = new File(path);
+            if(!zip.exists())
+                zip.createNewFile();
+
+            FileOutputStream fos = new FileOutputStream(zip);
             byte[] buf = new byte[BUFSIZE];
-            while (-1 != (n = data.read(buf))) {
+            while ((n = data.read(buf)) != -1) {
                 bytesBuffered += n;
                 fos.write(buf, 0, n);
+                int i = (int)((bytesBuffered/contentLength)*75);
+                if(i > progress) {
+                    progress = i;
+                    handler.handleMessage(Message.obtain(handler, progress));
+                }
             }
-            publishProgress(50);
             fos.flush();
         } catch (IOException e) {
             throw new DownloadFailedException("Downloading zip file failed.");
@@ -89,6 +97,7 @@ public class AudioBookDownloader extends AsyncTask {
         try {
             String filename;
             is = new FileInputStream(path + "/" + zipname);
+
             zis = new ZipInputStream(new BufferedInputStream(is));
             ZipEntry ze;
             byte[] buffer = new byte[1024];
@@ -103,8 +112,9 @@ public class AudioBookDownloader extends AsyncTask {
 
             String finalPath = dirTitle.getPath();
 
-            float progressStep = 50 / (zis.available() / buffer.length);
-            int progress = 50;
+            double done = 0.0;
+            int progress = 75;
+            int fileSize = is.available();
 
             while ((ze = zis.getNextEntry()) != null)
             {
@@ -112,9 +122,13 @@ public class AudioBookDownloader extends AsyncTask {
                 FileOutputStream fout = new FileOutputStream(finalPath + "/" + filename);
                 while ((count = zis.read(buffer)) != -1)
                 {
+                    done += count;
                     fout.write(buffer, 0, count);
-                    progress += progressStep;
-                    publishProgress(progress);
+                    int i = (int)((done/fileSize)*25) + 75;
+                    if(i > progress) {
+                        progress = i;
+                        handler.handleMessage(Message.obtain(handler, progress));
+                    }
                 }
                 fout.close();
                 zis.closeEntry();
@@ -132,27 +146,5 @@ public class AudioBookDownloader extends AsyncTask {
         }
 
         return true;
-    }
-
-    @Override
-    protected void onPreExecute() {
-
-        super.onPreExecute();
-        // create dialog
-        dialog=new ProgressDialog(App.getApp().getAppContext());
-        dialog.setCancelable(true);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        dialog.show();
-    }
-
-    protected void onProgressUpdate(Integer... values) {
-        super.onProgressUpdate(values);
-        dialog.setProgress(values[0]);
-    }
-
-    protected void onPostExecute(Void result) {
-        super.onPostExecute(result);
-        dialog.dismiss();
     }
 }
