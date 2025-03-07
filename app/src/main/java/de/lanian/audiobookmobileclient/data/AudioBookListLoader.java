@@ -16,35 +16,30 @@ import de.lanian.audiobookmobileclient.execptions.NoServerAccessException;
 
 public class AudioBookListLoader {
 
-    private String server;
+    private final String server;
 
     public AudioBookListLoader(String server) {
         this.server = server;
     }
     public List<AudioBook> loadList() throws NoServerAccessException {
-        ArrayList<AudioBook> books = new ArrayList<>();
-
         try {
             URL url = new URL("http://" + server + ":8080/audiobook/list/");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                // request was not successful ...
+                throw new NoServerAccessException();
             }
 
             String content = parseResponseMessage(connection.getInputStream());
 
-            Type listType = new TypeToken<ArrayList<AudioBook>>(){}.getType();
-            books = new Gson().fromJson(content, listType);
+            return createBookListFromJson(content);
         } catch (Exception e) {
-            throw new NoServerAccessException("Daten konnten nicht geladen werden");
+            throw new NoServerAccessException();
         }
-
-        return books;
     }
 
     private String parseResponseMessage(InputStream stream) throws IOException {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         if (stream != null) {
             BufferedReader in = new BufferedReader(new InputStreamReader(stream));
             String inputLine;
@@ -56,5 +51,10 @@ public class AudioBookListLoader {
         }
 
         return buffer.toString();
+    }
+
+    private List<AudioBook> createBookListFromJson(String content) {
+        Type listType = new TypeToken<ArrayList<AudioBook>>(){}.getType();
+        return new Gson().fromJson(content, listType);
     }
 }

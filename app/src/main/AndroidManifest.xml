@@ -19,9 +19,14 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AudioBookMobileClient">
+
+        </activity>
+        <activity
+            android:name=".SplashScreenActivity"
+            android:theme="@style/SplashTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

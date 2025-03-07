@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".DetailsFragment"
-    android:background="@color/royalblue">
+    android:background="@drawable/background_wood">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -24,6 +24,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="320dp"
                     android:scaleType="fitXY"
+                    android:layout_margin="10dp"
                     android:gravity="center_horizontal">
                 </ImageView>
                 <TextView
@@ -35,7 +36,7 @@
                     android:textColor="@color/black"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:textSize="24dp">
+                    android:textSize="20sp">
                 </TextView>
                 <TextView
                     android:id="@+id/series"
@@ -44,7 +45,7 @@
                     android:textColor="@color/black"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:textSize="20dp">
+                    android:textSize="18sp">
                 </TextView>
                 <TextView
                     android:id="@+id/author"
@@ -53,7 +54,7 @@
                     android:textColor="@color/black"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:textSize="18dp">
+                    android:textSize="16sp">
                 </TextView>
                 <TextView
                     android:id="@+id/speaker"
@@ -62,7 +63,7 @@
                     android:textColor="@color/black"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:textSize="18dp">
+                    android:textSize="16sp">
                 </TextView>
                 <TextView
                     android:id="@+id/year"
@@ -71,7 +72,7 @@
                     android:textColor="@color/black"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:textSize="18dp">
+                    android:textSize="16sp">
                 </TextView>
                 <TextView
                     android:id="@+id/duration"
@@ -80,7 +81,7 @@
                     android:textColor="@color/black"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:textSize="18dp">
+                    android:textSize="16sp">
                 </TextView>
                 <TextView
                     android:id="@+id/description"
@@ -90,15 +91,16 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:textSize="16dp">
+                    android:textSize="14sp">
                 </TextView>
                 <Button
                     android:id="@+id/download"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/border_white_background"
                     android:text="Download"/>
                 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"

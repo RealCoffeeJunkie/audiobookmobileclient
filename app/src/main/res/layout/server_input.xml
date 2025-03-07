@@ -6,10 +6,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Server-IP:" />
+        android:text="Server-IP:"
+        android:textColor="@color/black"/>
     <EditText
         android:id="@+id/ipInput"
-        android:hint="Server IP"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:digits="0123456789."/>
 </LinearLayout>

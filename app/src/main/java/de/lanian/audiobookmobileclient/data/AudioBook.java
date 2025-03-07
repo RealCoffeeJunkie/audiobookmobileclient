@@ -14,4 +14,8 @@ public class AudioBook implements Serializable {
     public byte[] CoverImageData;
     public String Description;
     public int PlaceInSeries;
+
+    public int getPlaceInSeries() {
+        return this.PlaceInSeries;
+    }
 }

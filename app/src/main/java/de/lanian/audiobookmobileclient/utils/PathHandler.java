@@ -17,7 +17,7 @@ public class PathHandler {
 
 
     public static HashSet<String> getExternalMounts() {
-        final HashSet<String> out = new HashSet<String>();
+        final HashSet<String> out = new HashSet<>();
         String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
         String s = "";
         try {

@@ -10,4 +10,15 @@
     <string name="author">Author</string>
     <string name="speaker">Sprecher</string>
     <string name="series">Buchreihe</string>
+
+
+    /** Status messages **/
+    <string name="downloadDone">Download erfolgreich</string>
+
+    /** Error Messages **/
+    <string name="serverSaved">Server IP gespeichert! Daten werden geladen.</string>
+    <string name="invalidIP">Ungültiges IP Format!</string>
+    <string name="unexpectedError">Ein unerwarteter Fehler ist aufgetreten.</string>
+    <string name="noPermissionGranted">Keine Berechtigung zum Speichern der Daten erteilt.</string>
+    <string name="dataNotLoaded">Daten konnten nicht geladen werden.</string>
 </resources>

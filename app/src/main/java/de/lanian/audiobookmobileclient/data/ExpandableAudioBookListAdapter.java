@@ -1,5 +1,6 @@
 package de.lanian.audiobookmobileclient.data;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,7 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,20 +32,20 @@ import de.lanian.audiobookmobileclient.R;
 
 public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
 
-    private Context context;
-
-    private ListFragment fragment;
-    private List<String> expandableListTitle = new ArrayList<>();
-    private HashMap<String, List<AudioBook>> expandableListDetail;
+    private final Context context;
+    private final ListFragment fragment;
+    private List<String> expandableListTitle;
+    private final HashMap<String, List<AudioBook>> expandableListDetail;
 
     public ExpandableAudioBookListAdapter(Context context, ListFragment fragment, List<AudioBook> books, SortParam sortParam) {
         this.context = context;
         this.fragment = fragment;
+        expandableListTitle = new ArrayList<>();
         expandableListDetail = new HashMap<>();
 
         for(AudioBook book : books) {
             String sortedParam = getGroupHeader(sortParam, book);
-            if(!expandableListDetail.keySet().contains(sortedParam)) {
+            if(!expandableListDetail.containsKey(sortedParam)) {
                 expandableListTitle.add(sortedParam);
                 expandableListDetail.put(sortedParam, new ArrayList<>());
             }
@@ -51,10 +53,10 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
             expandableListDetail.get(sortedParam).add(book);
         }
 
-        expandableListTitle = expandableListTitle.stream().sorted((o1,o2) -> o1.compareTo(o2)).collect(Collectors.toList());
+        expandableListTitle = expandableListTitle.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
 
         for (String key : expandableListDetail.keySet()) {
-            List<AudioBook> newOrder = expandableListDetail.get(key).stream().sorted((o1,o2) -> (o1.PlaceInSeries - o2.PlaceInSeries)).collect(Collectors.toList());
+            List<AudioBook> newOrder = expandableListDetail.get(key).stream().sorted(Comparator.comparingInt(AudioBook::getPlaceInSeries)).collect(Collectors.toList());
             expandableListDetail.put(key, newOrder);
         }
     }
@@ -105,6 +107,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         String listTitle = (String) getGroup(groupPosition);
@@ -174,9 +177,6 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
 
         File file = new File(path);
 
-        if(file.exists())
-            return true;
-
-        return false;
+        return file.exists();
     }
 }

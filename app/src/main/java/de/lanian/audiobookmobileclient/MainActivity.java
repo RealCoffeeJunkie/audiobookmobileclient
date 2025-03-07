@@ -1,12 +1,8 @@
 package de.lanian.audiobookmobileclient;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,24 +14,19 @@ import de.lanian.audiobookmobileclient.databinding.ActivityMainBinding;
 import de.lanian.audiobookmobileclient.utils.PathHandler;
 import de.lanian.audiobookmobileclient.utils.Preferences;
 import de.lanian.audiobookmobileclient.utils.RequestCodes;
-
-import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-import java.net.URLEncoder;
-
 public class MainActivity extends AppCompatActivity {
 
-    public static final String SERVER_IP = "ServerIp";
     private AppBarConfiguration appBarConfiguration;
-    private ActivityMainBinding binding;
 
     /****************
      * Lifecycle
@@ -45,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initializeApp();
+        //initializeApp();
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -96,60 +87,46 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        switch(requestCode) {
-            case 1:
-                handleAudioBookDirectoryInput(data);
-                break;
+        if(requestCode == 1) {
+            handleAudioBookDirectoryInput(data);
         }
     }
 
-    private void initializeApp() {
-        App.createInstance(getApplicationContext());
-
-        String server = App.getApp().getAppPreference(Preferences.SERVER_IP);
-        if(server == null || server.isEmpty())
-            handleServerIpInput();
-
-        String directory = App.getApp().getAppPreference(Preferences.AUDIOBOOK_DIRECTORY);
-        if(directory == null || directory.isEmpty())
-            App.getApp().setAppPreference(Preferences.AUDIOBOOK_DIRECTORY, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath());
-    }
-
     private void handleServerIpInput() {
-        AlertDialog.Builder ipInput = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.server_input, null);
-        ipInput.setView(view);
-        EditText text = (EditText)view.findViewById(R.id.ipInput) ;
-        ipInput. setPositiveButton("Bestätigen", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String ip = text.getText().toString();
-                        boolean valid = InetAddressValidator.getInstance().isValidInet4Address(ip);
-                        if(valid) {
-                            App.getApp().setAppPreference(Preferences.SERVER_IP, ip);
-                            Toast.makeText(getApplicationContext(), "Server IP gesetzt!", Toast.LENGTH_SHORT).show();
-                            reload();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "ungültige Server IP!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        EditText input = ((EditText)view.findViewById(R.id.ipInput));
+
+        AlertDialog ipInput = new AlertDialog.Builder(this, R.style.MyDialogTheme).
+                setView(view).setPositiveButton(android.R.string.ok, null).create();
+
+        ipInput.setOnShowListener(dialog -> {
+            Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setTextColor(getColor(R.color.black));
+            button.setOnClickListener(view1 -> {
+                String ip = input.getText().toString();
+                boolean valid = InetAddressValidator.getInstance().isValidInet4Address(ip);
+
+                if(valid) {
+                    App.getApp().setAppPreference(Preferences.SERVER_IP, ip);
+                    Toast.makeText(getApplicationContext(), getString(R.string.serverSaved), Toast.LENGTH_SHORT).show();
+                    reload();
+                    dialog.dismiss();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.invalidIP, Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
         ipInput.show();
     }
 
     public void handleAudioBookDirectoryInput(Intent intent) {
         if(intent != null && intent.getData() != null) {
-            PathHandler.getExternalMounts();
             Uri uri = intent.getData();
             Uri docUri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
             String path = PathHandler.getPath(this, docUri);
 
-            /*String path = intent.getDataString();*/
             if(path != null && !path.isEmpty()) {
                 App.getApp().setAppPreference(Preferences.AUDIOBOOK_DIRECTORY, path);
-            } else {
-                // Do nothing, keep the current value
             }
         }
     }

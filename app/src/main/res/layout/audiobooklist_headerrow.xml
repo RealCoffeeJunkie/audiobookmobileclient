@@ -10,6 +10,7 @@
         android:layout_marginLeft="10dp"
         android:layout_height="25dp"
         android:ellipsize="end"
+        android:textColor="@color/white"
         android:maxLines="1">
     </TextView>
 </GridLayout>

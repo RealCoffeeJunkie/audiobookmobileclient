@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ListFragment"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_margin="10dp"
     android:layout_marginBottom="5dp">
     <ExpandableListView
@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/border_white_background"
-            android:src="@drawable/icon_author">
+            android:src="@drawable/icon_author"
+            android:layout_marginRight="5dp">
         </ImageButton>
         <ImageButton
             android:id="@+id/series"
@@ -37,7 +38,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/border_white_background"
-            android:src="@drawable/icon_series">
+            android:src="@drawable/icon_series"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp">
         </ImageButton>
         <ImageButton
             android:id="@+id/speaker"
@@ -45,7 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/border_white_background"
-            android:src="@drawable/icon_speaker">
+            android:src="@drawable/icon_speaker"
+            android:layout_marginLeft="5dp">
         </ImageButton>
     </LinearLayout>
 

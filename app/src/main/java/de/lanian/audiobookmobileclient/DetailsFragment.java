@@ -20,13 +20,11 @@ import com.google.gson.Gson;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import de.lanian.audiobookmobileclient.data.AudioBook;
 import de.lanian.audiobookmobileclient.data.AudioBookDownloader;
 import de.lanian.audiobookmobileclient.databinding.FragmentDetailsBinding;
 import de.lanian.audiobookmobileclient.execptions.DownloadFailedException;
 import de.lanian.audiobookmobileclient.utils.PermissionHandler;
-import de.lanian.audiobookmobileclient.utils.Preferences;
 
 public class DetailsFragment extends Fragment implements View.OnClickListener {
 
@@ -45,7 +43,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
      ****************/
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentDetailsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -84,7 +82,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             ((TextView) getView().findViewById(R.id.speaker)).setText("Sprecher: " + book.Speaker);
             ((TextView) getView().findViewById(R.id.description)).setText(book.Description);
         } else {
-            Toast.makeText(App.getApp().getAppContext(), "Daten konnten nicht geladen werden.", Toast.LENGTH_LONG);
+            Toast.makeText(App.getApp().getAppContext(), getString(R.string.dataNotLoaded), Toast.LENGTH_LONG);
         }
     }
 
@@ -100,7 +98,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
             executor.execute(new Runnable() {
                 public void run() {
                     try {
-                        new AudioBookDownloader(book, handler).downloadBook(App.getApp().getAppPreference(Preferences.SERVER_IP));
+                        new AudioBookDownloader(book, handler).downloadBook();
 
                         handler.post(new Runnable() {
                             @Override
@@ -111,18 +109,18 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
                     } catch (DownloadFailedException e) {
                         Toast.makeText(App.getApp().getAppContext(), e.getMessage(), Toast.LENGTH_LONG);
                     } catch (Exception e) {
-                        Toast.makeText(App.getApp().getAppContext(), "Ein unerwarteter Fehler ist aufgetreten.", Toast.LENGTH_LONG);
+                        Toast.makeText(App.getApp().getAppContext(), getString(R.string.unexpectedError), Toast.LENGTH_LONG);
                     }
                 }
             });
         } else {
-            Toast.makeText(App.getApp().getAppContext(), "Keine Berechtigung zum Speichern der Daten erteilt.", Toast.LENGTH_LONG);
+            Toast.makeText(App.getApp().getAppContext(), getString(R.string.noPermissionGranted), Toast.LENGTH_LONG);
         }
 
     }
 
     public void onTaskComplete(Object result) {
-        Toast.makeText(App.getApp().getAppContext(), "Download erfolgreich", Toast.LENGTH_LONG);
+        Toast.makeText(App.getApp().getAppContext(), getString(R.string.downloadDone), Toast.LENGTH_LONG);
         this.getParentFragmentManager().popBackStackImmediate();
     }
 
