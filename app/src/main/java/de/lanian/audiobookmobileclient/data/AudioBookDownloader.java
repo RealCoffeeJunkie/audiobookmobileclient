@@ -23,7 +23,6 @@ import de.lanian.audiobookmobileclient.utils.Preferences;
 public class AudioBookDownloader {
 
     private static final int BUFFER = 8096;
-
     private final AudioBook book;
     private final Handler handler;
     private final String zipFileName;

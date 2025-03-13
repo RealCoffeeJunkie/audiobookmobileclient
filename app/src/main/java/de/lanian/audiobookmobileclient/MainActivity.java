@@ -10,10 +10,16 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import de.lanian.audiobookmobileclient.data.AudioBook;
+import de.lanian.audiobookmobileclient.data.AudioBookListLoader;
 import de.lanian.audiobookmobileclient.databinding.ActivityMainBinding;
 import de.lanian.audiobookmobileclient.utils.PathHandler;
 import de.lanian.audiobookmobileclient.utils.Preferences;
 import de.lanian.audiobookmobileclient.utils.RequestCodes;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.DocumentsContract;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,9 +30,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
+    private final Executor executor = Executors.newCachedThreadPool();
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     /****************
      * Lifecycle
@@ -63,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             i.addCategory(Intent.CATEGORY_DEFAULT);
             startActivityForResult(Intent.createChooser(i, "Choose directory"), RequestCodes.CHOOSE_AUDIOBOOK_DIRECTORY.value);
+        } else if(id == R.id.action_reload) {
+            this.loadBookList(false);
         }
 
         return super.onOptionsItemSelected(item);
@@ -129,5 +143,28 @@ public class MainActivity extends AppCompatActivity {
                 App.getApp().setAppPreference(Preferences.AUDIOBOOK_DIRECTORY, path);
             }
         }
+    }
+
+    private void loadBookList(boolean local) {
+        executor.execute(() -> {
+            try {
+                final List<AudioBook> books;
+                if(local) {
+                    books = new AudioBookListLoader(App.getApp().getAppPreference(Preferences.SERVER_IP)).loadListFromFile();
+                } else {
+                    books = new AudioBookListLoader(App.getApp().getAppPreference(Preferences.SERVER_IP)).loadListFromServer();
+                }
+                handler.post(() -> onTaskComplete(books));
+            } catch (Exception e) {
+            }
+        });
+    }
+
+    /**
+     * Go to App Main Screen when loading is done
+     */
+    public void onTaskComplete(List<AudioBook> result) {
+        App.getApp().setAudioBookList(result);
+        reload();
     }
 }

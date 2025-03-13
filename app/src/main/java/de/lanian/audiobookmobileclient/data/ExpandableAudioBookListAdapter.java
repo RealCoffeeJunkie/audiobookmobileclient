@@ -29,13 +29,14 @@ import java.util.stream.Collectors;
 
 import de.lanian.audiobookmobileclient.ListFragment;
 import de.lanian.audiobookmobileclient.R;
+import de.lanian.audiobookmobileclient.utils.FavoriteHandler;
 
 public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
-
     private final Context context;
     private final ListFragment fragment;
     private List<String> expandableListTitle;
     private final HashMap<String, List<AudioBook>> expandableListDetail;
+    private FavoriteHandler favoriteHandler;
 
     public ExpandableAudioBookListAdapter(Context context, ListFragment fragment, List<AudioBook> books, SortParam sortParam) {
         this.context = context;
@@ -56,9 +57,11 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         expandableListTitle = expandableListTitle.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
 
         for (String key : expandableListDetail.keySet()) {
-            List<AudioBook> newOrder = expandableListDetail.get(key).stream().sorted(Comparator.comparingInt(AudioBook::getPlaceInSeries)).collect(Collectors.toList());
+            List<AudioBook> newOrder = expandableListDetail.get(key).stream().sorted(Comparator.comparing(AudioBook::getComparableBySeries)).collect(Collectors.toList());
             expandableListDetail.put(key, newOrder);
         }
+
+        this.favoriteHandler = new FavoriteHandler();
     }
 
     private String getGroupHeader(SortParam param, AudioBook book) {
@@ -133,6 +136,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
             LayoutInflater layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = layoutInflater.inflate(R.layout.audiobooklist_contentrow, null);
         }
+
         ((TextView) convertView.findViewById(R.id.title)).setText(book.Title);
         if(book.Series == null || book.Series.isEmpty()) {
             ((TextView) convertView.findViewById(R.id.series)).setText("");
@@ -151,6 +155,11 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         else
             ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setVisibility(View.INVISIBLE);
 
+        if(this.favoriteHandler.isAudioBookFavorite(book.Uid))
+            ((CheckBox) convertView.findViewById(R.id.isFavorite)).setChecked(true);
+        else
+            ((CheckBox) convertView.findViewById(R.id.isFavorite)).setChecked(false);
+
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -158,6 +167,22 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
                 bundle.putString("bookIndex", new Gson().toJson(book, AudioBook.class));
                 NavHostFragment.findNavController(fragment)
                         .navigate(R.id.action_ListFragment_to_DetailsFragment, bundle);
+            }
+        });
+
+        CheckBox box = convertView.findViewById(R.id.isFavorite);
+
+        convertView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(favoriteHandler.isAudioBookFavorite(book.Uid)) {
+                    favoriteHandler.removeFavorite(book.Uid);
+                    box.setChecked(false);
+                } else {
+                    favoriteHandler.addFavorite(book.Uid);
+                    box.setChecked(true);
+                }
+                return true;
             }
         });
 

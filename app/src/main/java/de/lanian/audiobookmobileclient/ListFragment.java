@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import java.util.List;
@@ -73,9 +75,13 @@ public class ListFragment extends Fragment implements View.OnClickListener {
      ****************/
 
     private void showBookList() {
-        ExpandableListView listExpandable = getView().findViewById(R.id.bookListExpandable);
-        ExpandableAudioBookListAdapter adapter = new ExpandableAudioBookListAdapter(getContext(), this, this.bookList, sortParam);
-        listExpandable.setAdapter(adapter);
+        if(this.bookList == null || this.bookList.isEmpty())
+            Toast.makeText(getContext(), "Keine Daten verfügbar.", Toast.LENGTH_LONG).show();
+        else {
+            ExpandableListView listExpandable = getView().findViewById(R.id.bookListExpandable);
+            ExpandableAudioBookListAdapter adapter = new ExpandableAudioBookListAdapter(getContext(), this, this.bookList, sortParam);
+            listExpandable.setAdapter(adapter);
+        }
     }
 
     @Override

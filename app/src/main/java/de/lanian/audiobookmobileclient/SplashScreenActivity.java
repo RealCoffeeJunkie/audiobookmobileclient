@@ -43,7 +43,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         if(server == null || server.isEmpty()) {
             handleServerIpInput();
         } else  {
-            loadBookList();
+            loadBookList(true);
         }
     }
 
@@ -52,7 +52,7 @@ public class SplashScreenActivity extends AppCompatActivity {
      */
     private void handleServerIpInput() {
         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.server_input, null);
-        EditText input = ((EditText)view.findViewById(R.id.ipInput));
+        EditText input = view.findViewById(R.id.ipInput);
 
         AlertDialog ipInput = new AlertDialog.Builder(this, R.style.MyDialogTheme).
                 setView(view).setPositiveButton(android.R.string.ok, null).create();
@@ -66,7 +66,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 if(valid) {
                     App.getApp().setAppPreference(Preferences.SERVER_IP, ip);
                     Toast.makeText(getApplicationContext(), getString(R.string.serverSaved), Toast.LENGTH_SHORT).show();
-                    loadBookList();
+                    loadBookList(false);
                     dialog.dismiss();
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.invalidIP), Toast.LENGTH_SHORT).show();
@@ -81,12 +81,19 @@ public class SplashScreenActivity extends AppCompatActivity {
     /**
      * Load Data from Server in Background
      */
-    private void loadBookList() {
+    private void loadBookList(boolean local) {
         executor.execute(() -> {
             try {
-                final List<AudioBook> books = new AudioBookListLoader(App.getApp().getAppPreference(Preferences.SERVER_IP)).loadList();
+                final List<AudioBook> books;
+                if(local) {
+                    books = new AudioBookListLoader(App.getApp().getAppPreference(Preferences.SERVER_IP)).loadListFromFile();
+                } else {
+                    books = new AudioBookListLoader(App.getApp().getAppPreference(Preferences.SERVER_IP)).loadListFromServer();
+                }
                 handler.post(() -> onTaskComplete(books));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                onError(e.getMessage());
+            }
         });
     }
 
@@ -95,6 +102,10 @@ public class SplashScreenActivity extends AppCompatActivity {
      */
     public void onTaskComplete(List<AudioBook> result) {
         App.getApp().setAudioBookList(result);
+        startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
+    }
+
+    public void onError(String message) {
         startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
     }
 }

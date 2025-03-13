@@ -15,7 +15,11 @@ public class AudioBook implements Serializable {
     public String Description;
     public int PlaceInSeries;
 
-    public int getPlaceInSeries() {
-        return this.PlaceInSeries;
+    public String getComparableBySeries() {
+        StringBuilder builder = new StringBuilder(this.Series + " ");
+        if(this.PlaceInSeries < 10)
+            builder.append("0");
+        builder.append(PlaceInSeries);
+        return builder.toString();
     }
 }

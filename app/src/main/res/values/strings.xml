@@ -2,6 +2,7 @@
     <string name="app_name">AudioBook MobileClient</string>
     <string name="action_server">Server IP</string>
     <string name="action_directory">Music Ordner</string>
+    <string name="action_reload">Daten neu laden</string>
     <!-- Strings used for fragments for navigation -->
     <string name="list_fragment_label"></string>
     <string name="details_fragment_label"></string>
