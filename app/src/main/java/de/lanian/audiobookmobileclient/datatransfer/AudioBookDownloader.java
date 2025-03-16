@@ -1,20 +1,23 @@
-package de.lanian.audiobookmobileclient.data;
+package de.lanian.audiobookmobileclient.datatransfer;
 
 import android.os.Handler;
 import android.os.Message;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.channels.FileLockInterruptionException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import de.lanian.audiobookmobileclient.App;
+import de.lanian.audiobookmobileclient.data.AudioBook;
 import de.lanian.audiobookmobileclient.execptions.DownloadFailedException;
 import de.lanian.audiobookmobileclient.execptions.NoServerAccessException;
 import de.lanian.audiobookmobileclient.execptions.UnpackingZipFailedException;
@@ -95,7 +98,7 @@ public class AudioBookDownloader {
 
         try {
             String filename;
-            is = Files.newInputStream(Paths.get(URI.create(directory + "/" + zipName)));
+            is = new FileInputStream(directory + "/" + zipName);
             zis = new ZipInputStream(new BufferedInputStream(is));
             ZipEntry ze;
             byte[] buffer = new byte[1024];

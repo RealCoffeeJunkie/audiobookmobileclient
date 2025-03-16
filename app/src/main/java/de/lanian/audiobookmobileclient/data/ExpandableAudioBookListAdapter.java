@@ -15,54 +15,59 @@ import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.navigation.fragment.NavHostFragment;
-
 import com.google.gson.Gson;
-
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import de.lanian.audiobookmobileclient.App;
 import de.lanian.audiobookmobileclient.ListFragment;
 import de.lanian.audiobookmobileclient.R;
 import de.lanian.audiobookmobileclient.utils.FavoriteHandler;
 
 public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
-    private final Context context;
     private final ListFragment fragment;
-    private List<String> expandableListTitle;
-    private final HashMap<String, List<AudioBook>> expandableListDetail;
+    private List<String> listTitles;
+    private final HashMap<String, List<AudioBook>> listItems;
     private FavoriteHandler favoriteHandler;
 
-    public ExpandableAudioBookListAdapter(Context context, ListFragment fragment, List<AudioBook> books, SortParam sortParam) {
-        this.context = context;
+    public ExpandableAudioBookListAdapter(ListFragment fragment, List<AudioBook> books, SortParam sortParam) {
         this.fragment = fragment;
-        expandableListTitle = new ArrayList<>();
-        expandableListDetail = new HashMap<>();
+        listTitles = new ArrayList<>();
+        listItems = new HashMap<>();
 
+        //Sorting List Items in Groups
         for(AudioBook book : books) {
             String sortedParam = getGroupHeader(sortParam, book);
-            if(!expandableListDetail.containsKey(sortedParam)) {
-                expandableListTitle.add(sortedParam);
-                expandableListDetail.put(sortedParam, new ArrayList<>());
+
+            if(!listItems.containsKey(sortedParam)) {
+                listTitles.add(sortedParam);
+                ArrayList<AudioBook> list = new ArrayList<>();
+                listItems.put(sortedParam, list);
             }
 
-            expandableListDetail.get(sortedParam).add(book);
+            listItems.get(sortedParam).add(book);
         }
 
-        expandableListTitle = expandableListTitle.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+        //Sorting Group-Titles
+        listTitles = listTitles.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
 
-        for (String key : expandableListDetail.keySet()) {
-            List<AudioBook> newOrder = expandableListDetail.get(key).stream().sorted(Comparator.comparing(AudioBook::getComparableBySeries)).collect(Collectors.toList());
-            expandableListDetail.put(key, newOrder);
+        //Sorting each Group by Series and PlaceInSeries of the books
+        for (String key : listItems.keySet()) {
+            List<AudioBook> newOrder = listItems.get(key).stream().sorted(Comparator.comparing(AudioBook::getComparableBySeries)).collect(Collectors.toList());
+            listItems.put(key, newOrder);
         }
 
         this.favoriteHandler = new FavoriteHandler();
     }
+
+    /**
+     * Helper Methods
+     */
 
     private String getGroupHeader(SortParam param, AudioBook book) {
         switch(param) {
@@ -75,24 +80,39 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    private boolean isAudioBookAlreadyDownloaded(AudioBook book) {
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath();
+        if(!path.endsWith("/"))
+            path += "/";
+        path += book.Author + "/" + book.Title;
+
+        File file = new File(path);
+
+        return file.exists();
+    }
+
+    /**
+     * Adapter Methods
+     */
+
     @Override
     public int getGroupCount() {
-        return expandableListTitle.size();
+        return listTitles.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return expandableListDetail.get(expandableListTitle.get(groupPosition)).size();
+        return listItems.get(listTitles.get(groupPosition)).size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return this.expandableListTitle.get(groupPosition);
+        return this.listTitles.get(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return this.expandableListDetail.get(this.expandableListTitle.get(groupPosition)).get(childPosition);
+        return this.listItems.get(this.listTitles.get(groupPosition)).get(childPosition);
     }
 
     @Override
@@ -115,7 +135,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         String listTitle = (String) getGroup(groupPosition);
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) App.getApp().getAppContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = layoutInflater.inflate(R.layout.audiobooklist_headerrow, null);
         }
         TextView listTitleTextView = (TextView) convertView.findViewById(R.id.listheader);
@@ -133,7 +153,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         AudioBook book = (AudioBook) getChild(groupPosition, childPosition);
 
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) App.getApp().getAppContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = layoutInflater.inflate(R.layout.audiobooklist_contentrow, null);
         }
 
@@ -150,16 +170,22 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         Bitmap bm = BitmapFactory.decodeByteArray(cover, 0, cover.length);
         ((ImageView) convertView.findViewById(R.id.cover)).setImageBitmap(bm);
 
-        if(isAudioBookAlreadyDownloaded(book))
+        if(isAudioBookAlreadyDownloaded(book)) {
             ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setChecked(true);
-        else
+            ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setVisibility(View.VISIBLE);
+        } else {
+            ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setChecked(false);
             ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setVisibility(View.INVISIBLE);
+        }
 
-        if(this.favoriteHandler.isAudioBookFavorite(book.Uid))
+        if(this.favoriteHandler.isAudioBookFavorite(book.Uid)) {
+            ((CheckBox) convertView.findViewById(R.id.isFavorite)).setVisibility(View.VISIBLE);
             ((CheckBox) convertView.findViewById(R.id.isFavorite)).setChecked(true);
-        else
+        }
+        else {
+            ((CheckBox) convertView.findViewById(R.id.isFavorite)).setVisibility(View.INVISIBLE);
             ((CheckBox) convertView.findViewById(R.id.isFavorite)).setChecked(false);
-
+        }
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,9 +204,11 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
                 if(favoriteHandler.isAudioBookFavorite(book.Uid)) {
                     favoriteHandler.removeFavorite(book.Uid);
                     box.setChecked(false);
+                    box.setVisibility(View.INVISIBLE);
                 } else {
                     favoriteHandler.addFavorite(book.Uid);
                     box.setChecked(true);
+                    box.setVisibility(View.VISIBLE);
                 }
                 return true;
             }
@@ -192,16 +220,5 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
-    }
-
-    private boolean isAudioBookAlreadyDownloaded(AudioBook book) {
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath();
-        if(!path.endsWith("/"))
-            path += "/";
-        path += book.Author + "/" + book.Title;
-
-        File file = new File(path);
-
-        return file.exists();
     }
 }

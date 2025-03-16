@@ -38,7 +38,9 @@
                 android:gravity="right"
                 android:layout_width="wrap_content"
                 android:layout_height="25dp"
-                android:enabled="false"/>
+                android:enabled="false"
+                android:buttonTint="@color/royalblue"
+                android:visibility="invisible"/>
             <CheckBox
                 android:id="@+id/isFavorite"
                 android:layout_weight="1"
@@ -46,7 +48,9 @@
                 android:gravity="right"
                 android:layout_width="wrap_content"
                 android:layout_height="25dp"
-                android:enabled="false"/>
+                android:enabled="false"
+                android:buttonTint="@color/green"
+                android:visibility="invisible"/>
         </LinearLayout>
         <TextView
             android:id="@+id/series"

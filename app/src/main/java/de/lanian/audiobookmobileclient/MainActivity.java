@@ -12,7 +12,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import de.lanian.audiobookmobileclient.data.AudioBook;
-import de.lanian.audiobookmobileclient.data.AudioBookListLoader;
+import de.lanian.audiobookmobileclient.datatransfer.AudioBookListLoader;
 import de.lanian.audiobookmobileclient.databinding.ActivityMainBinding;
 import de.lanian.audiobookmobileclient.utils.PathHandler;
 import de.lanian.audiobookmobileclient.utils.Preferences;

@@ -79,7 +79,7 @@ public class ListFragment extends Fragment implements View.OnClickListener {
             Toast.makeText(getContext(), "Keine Daten verfügbar.", Toast.LENGTH_LONG).show();
         else {
             ExpandableListView listExpandable = getView().findViewById(R.id.bookListExpandable);
-            ExpandableAudioBookListAdapter adapter = new ExpandableAudioBookListAdapter(getContext(), this, this.bookList, sortParam);
+            ExpandableAudioBookListAdapter adapter = new ExpandableAudioBookListAdapter(this, this.bookList, sortParam);
             listExpandable.setAdapter(adapter);
         }
     }
@@ -95,6 +95,6 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         }
 
         ExpandableListView view = ((ExpandableListView)getView().findViewById(R.id.bookListExpandable));
-        view.setAdapter(new ExpandableAudioBookListAdapter(getContext(), this, bookList, sortParam));
+        view.setAdapter(new ExpandableAudioBookListAdapter(this, bookList, sortParam));
     }
 }

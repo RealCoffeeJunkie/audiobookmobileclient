@@ -1,4 +1,4 @@
-package de.lanian.audiobookmobileclient.data;
+package de.lanian.audiobookmobileclient.datatransfer;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lanian.audiobookmobileclient.App;
+import de.lanian.audiobookmobileclient.data.AudioBook;
 import de.lanian.audiobookmobileclient.execptions.NoServerAccessException;
 
 public class AudioBookListLoader {

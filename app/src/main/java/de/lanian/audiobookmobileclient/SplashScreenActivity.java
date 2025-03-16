@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import de.lanian.audiobookmobileclient.data.AudioBook;
-import de.lanian.audiobookmobileclient.data.AudioBookListLoader;
+import de.lanian.audiobookmobileclient.datatransfer.AudioBookListLoader;
 import de.lanian.audiobookmobileclient.utils.Preferences;
 
 @SuppressLint("CustomSplashScreen")
@@ -43,6 +43,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         if(server == null || server.isEmpty()) {
             handleServerIpInput();
         } else  {
+            //boolean locale = App.getApp().getAudioBookList() != null && !App.getApp().getAudioBookList().isEmpty();
             loadBookList(true);
         }
     }
@@ -106,6 +107,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
     public void onError(String message) {
+        Toast.makeText(getApplicationContext(), "Daten konnten nicht geladen werden.", Toast.LENGTH_LONG).show();
         startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
     }
 }

@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import de.lanian.audiobookmobileclient.data.AudioBook;
-import de.lanian.audiobookmobileclient.data.AudioBookDownloader;
+import de.lanian.audiobookmobileclient.datatransfer.AudioBookDownloader;
 import de.lanian.audiobookmobileclient.databinding.FragmentDetailsBinding;
 import de.lanian.audiobookmobileclient.execptions.DownloadFailedException;
 import de.lanian.audiobookmobileclient.utils.PermissionHandler;
