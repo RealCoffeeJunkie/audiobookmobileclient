@@ -10,14 +10,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
 import de.lanian.audiobookmobileclient.data.AudioBook;
 import de.lanian.audiobookmobileclient.datatransfer.AudioBookListLoader;
 import de.lanian.audiobookmobileclient.databinding.ActivityMainBinding;
 import de.lanian.audiobookmobileclient.utils.PathHandler;
 import de.lanian.audiobookmobileclient.utils.Preferences;
 import de.lanian.audiobookmobileclient.utils.RequestCodes;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
@@ -29,7 +27,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import org.apache.commons.validator.routines.InetAddressValidator;
-
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -156,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 handler.post(() -> onTaskComplete(books));
             } catch (Exception e) {
+                System.out.println();
             }
         });
     }

@@ -45,6 +45,9 @@ public class SplashScreenActivity extends AppCompatActivity {
         } else  {
             //boolean locale = App.getApp().getAudioBookList() != null && !App.getApp().getAudioBookList().isEmpty();
             loadBookList(true);
+
+            if(App.getApp().getAudioBookList() == null  || App.getApp().getAudioBookList().isEmpty())
+                loadBookList(false);
         }
     }
 

@@ -9,11 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
-import java.nio.channels.FileLockInterruptionException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import de.lanian.audiobookmobileclient.App;
@@ -35,7 +31,7 @@ public class AudioBookDownloader {
         this.book = book;
         this.handler = handler;
 
-        this.zipFileName = book.Author + " - " + book.Title + ".zip";
+        this.zipFileName = book.author + " - " + book.title + ".zip";
         this.musicDirPath = new File(App.getApp().getAppPreference(Preferences.AUDIOBOOK_DIRECTORY)).getPath();
     }
 
@@ -44,7 +40,7 @@ public class AudioBookDownloader {
 
         try {
             URL url = new URL("http://" + App.getApp().getAppPreference(Preferences.SERVER_IP)
-                    + ":8080/audiobook/download/" + book.Uid);
+                    + ":8080/audiobook/download/" + book.uid);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -52,7 +48,7 @@ public class AudioBookDownloader {
             }
 
             zipFile = saveZipFile(connection.getInputStream(), connection.getContentLength());
-            unpackZip(App.getApp().getAppPreference(Preferences.AUDIOBOOK_DIRECTORY), zipFileName, book.Author, book.Title);
+            unpackZip(App.getApp().getAppPreference(Preferences.AUDIOBOOK_DIRECTORY), zipFileName, book.author, book.title);
         } catch (Exception e) {
             throw new DownloadFailedException(e.getMessage());
         } finally {

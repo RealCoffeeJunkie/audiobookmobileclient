@@ -19,7 +19,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.gson.Gson;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
     private final ListFragment fragment;
     private List<String> listTitles;
     private final HashMap<String, List<AudioBook>> listItems;
-    private FavoriteHandler favoriteHandler;
+    private final FavoriteHandler favoriteHandler;
 
     public ExpandableAudioBookListAdapter(ListFragment fragment, List<AudioBook> books, SortParam sortParam) {
         this.fragment = fragment;
@@ -50,7 +49,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
                 listItems.put(sortedParam, list);
             }
 
-            listItems.get(sortedParam).add(book);
+            listItems.get(sortedParam).  add(book);
         }
 
         //Sorting Group-Titles
@@ -72,11 +71,11 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
     private String getGroupHeader(SortParam param, AudioBook book) {
         switch(param) {
             case SERIES:
-                return book.Series;
+                return book.series;
             case SPEAKER:
-                return book.Speaker;
+                return book.speaker;
             default:
-                return book.Author;
+                return book.author;
         }
     }
 
@@ -84,7 +83,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath();
         if(!path.endsWith("/"))
             path += "/";
-        path += book.Author + "/" + book.Title;
+        path += book.author + "/" + book.title;
 
         File file = new File(path);
 
@@ -157,19 +156,22 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
             convertView = layoutInflater.inflate(R.layout.audiobooklist_contentrow, null);
         }
 
-        ((TextView) convertView.findViewById(R.id.title)).setText(book.Title);
-        if(book.Series == null || book.Series.isEmpty()) {
+        ((TextView) convertView.findViewById(R.id.title)).setText(book.title);
+        if(book.series == null || book.series.isEmpty()) {
             ((TextView) convertView.findViewById(R.id.series)).setText("");
         } else {
-            ((TextView) convertView.findViewById(R.id.series)).setText("Buchreihe: " + book.Series + " " + book.PlaceInSeries);
+            ((TextView) convertView.findViewById(R.id.series)).setText("Buchreihe: " + book.series + " " + book.placeInSeries);
         }
-        ((TextView) convertView.findViewById(R.id.author)).setText("Author: " + book.Author);
-        ((TextView) convertView.findViewById(R.id.speaker)).setText("Sprecher: " + book.Speaker);
+        ((TextView) convertView.findViewById(R.id.author)).setText("Author: " + book.author);
+        ((TextView) convertView.findViewById(R.id.speaker)).setText("Sprecher: " + book.speaker);
 
-        byte[] cover = book.CoverImageData;
-        Bitmap bm = BitmapFactory.decodeByteArray(cover, 0, cover.length);
-        ((ImageView) convertView.findViewById(R.id.cover)).setImageBitmap(bm);
-
+        byte[] cover = book.previewImageData;
+        if(book.previewImageData != null) {
+            Bitmap bm = BitmapFactory.decodeByteArray(cover, 0, cover.length);
+            ((ImageView) convertView.findViewById(R.id.cover)).setImageBitmap(bm);
+        } else {
+            ((ImageView) convertView.findViewById(R.id.cover)).setImageResource(R.drawable.placeholder);
+        }
         if(isAudioBookAlreadyDownloaded(book)) {
             ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setChecked(true);
             ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setVisibility(View.VISIBLE);
@@ -178,7 +180,7 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
             ((CheckBox) convertView.findViewById(R.id.isDownloaded)).setVisibility(View.INVISIBLE);
         }
 
-        if(this.favoriteHandler.isAudioBookFavorite(book.Uid)) {
+        if(this.favoriteHandler.isAudioBookFavorite(book.uid)) {
             ((CheckBox) convertView.findViewById(R.id.isFavorite)).setVisibility(View.VISIBLE);
             ((CheckBox) convertView.findViewById(R.id.isFavorite)).setChecked(true);
         }
@@ -201,12 +203,12 @@ public class ExpandableAudioBookListAdapter extends BaseExpandableListAdapter {
         convertView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if(favoriteHandler.isAudioBookFavorite(book.Uid)) {
-                    favoriteHandler.removeFavorite(book.Uid);
+                if(favoriteHandler.isAudioBookFavorite(book.uid)) {
+                    favoriteHandler.removeFavorite(book.uid);
                     box.setChecked(false);
                     box.setVisibility(View.INVISIBLE);
                 } else {
-                    favoriteHandler.addFavorite(book.Uid);
+                    favoriteHandler.addFavorite(book.uid);
                     box.setChecked(true);
                     box.setVisibility(View.VISIBLE);
                 }

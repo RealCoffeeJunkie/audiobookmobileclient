@@ -14,7 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 import de.lanian.audiobookmobileclient.App;
 import de.lanian.audiobookmobileclient.data.AudioBook;
 import de.lanian.audiobookmobileclient.execptions.NoServerAccessException;
@@ -32,12 +31,12 @@ public class AudioBookListLoader {
         String content = loadJsonFile();
         if(content == null || content.isEmpty())
             return loadListFromServer();
-        return createBookListFromJson(content, true);
+        return createBookListFromJson(content);
     }
 
     public List<AudioBook> loadListFromServer() throws NoServerAccessException {
         try {
-            URL url = new URL("http://" + server + ":8080/audiobook/list/");
+            URL url = new URL("http://" + server + ":8080/audiobook_v2/previewList");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(10000);
 
@@ -47,7 +46,7 @@ public class AudioBookListLoader {
 
             String content = parseResponseMessage(connection.getInputStream());
             saveJsonFile(content);
-            return createBookListFromJson(content, false);
+            return createBookListFromJson(content);
         } catch (Exception e) {
             throw new NoServerAccessException();
         }
@@ -68,7 +67,7 @@ public class AudioBookListLoader {
         return buffer.toString();
     }
 
-    private List<AudioBook> createBookListFromJson(String content, boolean locale) {
+    private List<AudioBook> createBookListFromJson(String content) {
         Type type = new TypeToken<ArrayList<AudioBook>>(){}.getType();
         return new Gson().fromJson(content, type);
     }

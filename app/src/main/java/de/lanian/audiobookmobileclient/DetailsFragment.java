@@ -17,14 +17,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import com.google.gson.Gson;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import de.lanian.audiobookmobileclient.data.AudioBook;
+import de.lanian.audiobookmobileclient.datatransfer.AudioBookDetailLoader;
 import de.lanian.audiobookmobileclient.datatransfer.AudioBookDownloader;
 import de.lanian.audiobookmobileclient.databinding.FragmentDetailsBinding;
 import de.lanian.audiobookmobileclient.execptions.DownloadFailedException;
 import de.lanian.audiobookmobileclient.utils.PermissionHandler;
+import de.lanian.audiobookmobileclient.utils.Preferences;
 
 public class DetailsFragment extends Fragment implements View.OnClickListener {
 
@@ -50,9 +51,10 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         this.book = new Gson().fromJson(getArguments().getString("bookIndex"), AudioBook.class);
         showDetails();
+
+        loadDetails(book.uid);
 
         Button button = getView().findViewById(R.id.download);
         button.setOnClickListener(this);
@@ -68,19 +70,31 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
      * ContentHandling
      ****************/
 
+    private void loadDetails(String uid) {
+        executor.execute(() -> {
+            try {
+                AudioBook book = new AudioBookDetailLoader(App.getApp().getAppPreference(Preferences.SERVER_IP)).loadAudioBookDetailsFromServer(uid);
+                handler.post(() -> onLoadDetailsTaskComplete(book));
+            } catch (Exception e) {}
+        });
+    }
+
     private void showDetails() {
         if(this.book != null) {
-            Bitmap bm = BitmapFactory.decodeByteArray(book.CoverImageData, 0, book.CoverImageData.length);
-            ((ImageView) getView().findViewById(R.id.cover)).setImageBitmap(bm);
+            if(this.book.previewImageData != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(book.previewImageData, 0, book.previewImageData.length);
+                ((ImageView) getView().findViewById(R.id.cover)).setImageBitmap(bm);
+            } else
+                ((ImageView) getView().findViewById(R.id.cover)).setImageResource(R.drawable.placeholder);
 
-            ((TextView) getView().findViewById(R.id.title)).setText(book.Title);
-            if(book.Series != null && !book.Series.isEmpty())
-                ((TextView) getView().findViewById(R.id.series)).setText("Reihe: " + book.Series + " " + book.PlaceInSeries);
-            ((TextView) getView().findViewById(R.id.author)).setText("Author: " + book.Author);
-            ((TextView) getView().findViewById(R.id.year)).setText("Erschienen: " + book.YearOfPublication);
-            ((TextView) getView().findViewById(R.id.duration)).setText("Dauer: " + book.Duration + "min.");
-            ((TextView) getView().findViewById(R.id.speaker)).setText("Sprecher: " + book.Speaker);
-            ((TextView) getView().findViewById(R.id.description)).setText(book.Description);
+            ((TextView) getView().findViewById(R.id.title)).setText(book.title);
+            if(book.series != null && !book.series.isEmpty())
+                ((TextView) getView().findViewById(R.id.series)).setText("Reihe: " + book.series + " " + book.placeInSeries);
+            ((TextView) getView().findViewById(R.id.author)).setText("Author: " + book.author);
+            ((TextView) getView().findViewById(R.id.year)).setText("Erschienen: " + book.yearOfPublication);
+            ((TextView) getView().findViewById(R.id.duration)).setText("Dauer: " + book.duration + "min.");
+            ((TextView) getView().findViewById(R.id.speaker)).setText("Sprecher: " + book.speaker);
+            ((TextView) getView().findViewById(R.id.description)).setText(book.description);
         } else {
             Toast.makeText(App.getApp().getAppContext(), getString(R.string.dataNotLoaded), Toast.LENGTH_LONG);
         }
@@ -103,7 +117,7 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                onTaskComplete(null);
+                                onDownloadTaskComplete(null);
                             }
                         });
                     } catch (DownloadFailedException e) {
@@ -119,9 +133,19 @@ public class DetailsFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    public void onTaskComplete(Object result) {
+    public void onDownloadTaskComplete(Object result) {
         Toast.makeText(App.getApp().getAppContext(), getString(R.string.downloadDone), Toast.LENGTH_LONG);
         this.getParentFragmentManager().popBackStackImmediate();
+    }
+
+    public void onLoadDetailsTaskComplete(Object result) {
+        if(result instanceof AudioBook) {
+            AudioBook b = (AudioBook) result;
+            if(b.coverImageData != null) {
+                Bitmap bm = BitmapFactory.decodeByteArray(b.coverImageData, 0, b.coverImageData.length);
+                ((ImageView) getView().findViewById(R.id.cover)).setImageBitmap(bm);
+            }
+        }
     }
 
     public void showProgress(int i) {
